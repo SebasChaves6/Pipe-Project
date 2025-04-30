@@ -1,0 +1,85 @@
+//Idea principal. Convertir las entradas a binario para identificar
+las salidas de los tubos, como en el patron del PDF, con este un decimal
+identifica su lado de tuberia, con esto dependiendo del lado se llama a 
+la siguiente del lado contrario del lado para identificar fugas (ejemplo, 
+entrada norte llamar a tuberia de arriba y verificar si tiene entrada sur, 
+todo esto dentro del limite de la matriz). Tambien es importante recordar 
+los hidrantes en las esquinas y el desague. 
+
+
+procedure main()
+  cargar_nivel()
+  while hay_celdas_en_matriz() do
+    validar_celda()
+  end while
+end procedure
+
+
+
+? validar_celda()
+  input fila, columna
+  tubo ← tuberia[fila][columna]
+  
+//idealmente este codigo seria universal (o generico)
+
+  if tiene_conector(tubo, 'N') then
+    if not celda_conectada(fila, columna, 'N') then
+      output "leak {fila} {columna} N"
+    end if
+  end if
+  
+  if tiene_conector(tubo, 'E') then
+    if not celda_conectada(fila, columna, 'E') then
+      output "leak {fila} {columna} E"
+    end if
+  end if
+
+  if tiene_conector(tubo, 'S') then
+    if not celda_conectada(fila, columna, 'S') then
+      output "leak {fila} {columna} S"
+    end if
+  end if
+
+  if tiene_conector(tubo, 'W') then
+    if not celda_conectada(fila, columna, 'W') then
+      output "leak {fila} {columna} W"
+    end if
+  end if
+end procedure
+
+function tiene_conector(tubo, direccion)
+  switch direccion do
+    case 'N': return (tubo AND 0b1000) ≠ 0
+    case 'E': return (tubo AND 0b0100) ≠ 0
+    case 'S': return (tubo AND 0b0010) ≠ 0
+    case 'W': return (tubo AND 0b0001) ≠ 0
+  end switch
+end function
+
+function celda_conectada(fila, columna, direccion)
+  vecino_fila ← fila
+  vecino_columna ← columna
+  direccion_opuesta ← ''
+
+  switch direccion do
+    case 'N':
+      vecino_fila ← fila - 1
+      direccion_opuesta ← 'S'
+    case 'E':
+      vecino_columna ← columna + 1
+      direccion_opuesta ← 'W'
+    case 'S':
+      vecino_fila ← fila + 1
+      direccion_opuesta ← 'N'
+    case 'W':
+      vecino_columna ← columna - 1
+      direccion_opuesta ← 'E'
+  end switch
+
+  if vecino fuera de limites then
+    return false
+  end if
+
+  tubo_vecino ← tuberia[vecino_fila][vecino_columna]
+  return tiene_conector(tubo_vecino, direccion_opuesta)
+end function
